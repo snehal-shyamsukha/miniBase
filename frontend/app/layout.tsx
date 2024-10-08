@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Inter } from 'next/font/google'
+import ClientLayout from "./components/ClientLayout";
 
 import "./globals.css";
 
@@ -11,9 +12,9 @@ const inter = Inter({
 })
 
 const akira = localFont({
-  src: "./fonts/Akira Expanded Demo.otf", // Replace with your font file path
-  variable: "--font-akira",       // Replace with your desired CSS variable name
-  weight: "400 800",            // Adjust weights as needed
+  src: "./fonts/Akira Expanded Demo.otf",
+  variable: "--font-akira",   
+  weight: "400 800",      
 });
 
 export const metadata: Metadata = {
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${akira.variable} ${inter.variable} antialiased`}
       >
-        {children}
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
