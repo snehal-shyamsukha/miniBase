@@ -3,7 +3,7 @@ import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import { useState, useEffect } from 'react';
 import Image from "next/image";
-import { getAllGames } from "./_actions/queries";
+import { getAllGames } from "./_actions/game";
 // import { useQuery } from "@tanstack/react-query";
 
 const menuItems = [
