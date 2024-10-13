@@ -1,12 +1,14 @@
 "use server";
 import { supabaseClient } from "@/utils/supabase/client";
 
-export const createUser = async (wallet_address: string, username?: string): Promise<number> => {
+export const createUser = async (wallet_address: string): Promise<number> => {
   const { data: existingUser, error: checkError } = await supabaseClient
-    .from("Users")
+    .from("users")
     .select("user_id")
     .eq("wallet_address", wallet_address)
     .single();
+
+    console.log(existingUser);
 
   if (checkError && checkError.code !== "PGRST116") {
     console.error("Error checking user:", checkError.message);
@@ -18,8 +20,8 @@ export const createUser = async (wallet_address: string, username?: string): Pro
   }
 
   const { data, error } = await supabaseClient
-    .from("Users")
-    .insert([{ wallet_address, username }])
+    .from("users")
+    .insert({wallet_address: wallet_address})
     .select('user_id');
 
   if (error) {
