@@ -8,7 +8,7 @@ const socialItems=[
 ]
 export default function Footer(){
 return(
-  <footer className="relative w-full mt-auto">
+  <footer className="relative w-full mt-10">
     <div className=" flex flex-col justify-center items-center font-akira space-y-4 mb-3 z-10 ">
     <div className="flex justify-center w-full">
     <div className="w-full max-w-[1344.15px] rounded-[19.326px] border-[0.966px] border-[#FCD800] bg-[#1832B8] p-4">
