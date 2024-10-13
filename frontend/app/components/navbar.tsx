@@ -1,8 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 const menuItems = [
   { label: "Home", link: "/" },
-  { label: "Trade", link: "/products" },
-  { label: "Unlockables", link: "/about" },
+  { label: "Tournaments", link: "/tournaments" },
 ];
 
 export default function Navbar() {
@@ -20,9 +20,9 @@ export default function Navbar() {
         <div className="flex flex-row space-x-8 font-sans ml-2 justify-center ml-3">
           {menuItems.map((item, index) => (
             <div key={index} className="flex flex-row items-center">
-              <span className="hover:border hover:rounded-[26px] px-2 py-1">
+              <Link href={item.link} className="hover:border hover:rounded-[26px] px-2 py-1">
                 <span className="hover:text-[#AEFE03]">{item.label}</span>
-              </span>
+              </Link>
               <Image
                 src="/Vector.png"
                 alt="Logo"
