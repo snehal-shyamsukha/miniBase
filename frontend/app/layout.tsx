@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Inter } from 'next/font/google'
 import ClientLayout from "./components/ClientLayout";
+import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import Image from "next/image";
 
 import "./globals.css";
 
@@ -32,9 +35,11 @@ export default function RootLayout({
       <body
         className={`${akira.variable} ${inter.variable} antialiased`}
       >
+        <Navbar/>
         <ClientLayout>
           {children}
         </ClientLayout>
+        <Footer/>
       </body>
     </html>
   );
