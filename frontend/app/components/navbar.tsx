@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
 import { formatAddress } from "@/utils/utils";
+import { useEffect } from "react";
+import { createUser } from "../_actions/user";
 
 const menuItems = [
   { label: "Home", link: "/" },
@@ -11,6 +13,22 @@ const menuItems = [
 
 export default function Navbar() {
   const { login, user, ready, authenticated } = usePrivy();
+
+  useEffect(() => {
+    if (ready && authenticated && user?.wallet?.address) {
+      const addUserToDb = async () => {
+        try {
+            const userAddress = user?.wallet?.address || user.farcaster?.ownerAddress
+            await createUser(userAddress ?? '');
+          console.log("User added to the database successfully.");
+        } catch (error) {
+          console.error("Error adding user to the database:", error);
+        }
+      };
+
+      addUserToDb(); 
+    }
+  }, [authenticated, user]);
 
   return (
     <div className="w-[1440px] h-[78px] bg-[#1832B8] font-sans shadow-[0px_1px_2px_0px_rgba(112,112,112,0.06),0px_1px_3px_0px_rgba(112,112,112,0.10)]">
