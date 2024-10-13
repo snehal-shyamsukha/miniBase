@@ -31,7 +31,7 @@ export default function Navbar() {
   }, [authenticated, user]);
 
   return (
-    <div className="w-[1440px] h-[78px] bg-[#1832B8] font-sans shadow-[0px_1px_2px_0px_rgba(112,112,112,0.06),0px_1px_3px_0px_rgba(112,112,112,0.10)]">
+    <div className="h-[78px] bg-[#1832B8] font-sans shadow-[0px_1px_2px_0px_rgba(112,112,112,0.06),0px_1px_3px_0px_rgba(112,112,112,0.10)]">
       <div className="flex justify-between items-center h-full px-4">
         <div className="flex items-center flex-1">
           <Image src="/logo.png" alt="Logo" width={61} height={61} className="mt-2" />
