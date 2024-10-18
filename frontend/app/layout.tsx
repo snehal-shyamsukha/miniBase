@@ -26,7 +26,7 @@ const akira = localFont({
   weight: "400 800",
 });
 
- const metadata: Metadata = {
+const metadata: Metadata = {
   title: "MiniBase",
   description: "One place for all Web3 games",
 };
@@ -44,15 +44,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <PrivyProviders>
-      <SearchProvider>
-        <body
-          className={`${akira.variable} ${inter.variable} antialiased`}
-        >
-          <Navbar/>
-            <Toaster position="top-center"/>
+        <SearchProvider>
+          <body
+            className={`${akira.variable} ${inter.variable} antialiased`}
+          >
+            <Navbar />
+            <Toaster position="top-center" />
             {children}
             <Footer />
-        </body>
+          </body>
         </SearchProvider>
       </PrivyProviders>
     </html>
