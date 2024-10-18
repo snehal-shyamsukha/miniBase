@@ -1,3 +1,4 @@
+"use client";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Inter } from 'next/font/google'
@@ -6,6 +7,10 @@ import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import Image from "next/image";
 import PrivyProviders from "./PrivyProvider";
+import { SearchProvider } from "./contexts/SearchContext";
+import toast, { Toaster } from 'react-hot-toast';
+import { useState } from "react";
+import React from 'react';
 
 import "./globals.css";
 
@@ -21,7 +26,7 @@ const akira = localFont({
   weight: "400 800",
 });
 
-export const metadata: Metadata = {
+ const metadata: Metadata = {
   title: "MiniBase",
   description: "One place for all Web3 games",
 };
@@ -31,18 +36,24 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
   return (
     <html lang="en">
       <PrivyProviders>
+      <SearchProvider>
         <body
           className={`${akira.variable} ${inter.variable} antialiased`}
         >
-          <Navbar />
-          <ClientLayout>
+          <Navbar/>
+            <Toaster position="top-center"/>
             {children}
-          </ClientLayout>
-          <Footer />
+            <Footer />
         </body>
+        </SearchProvider>
       </PrivyProviders>
     </html>
   );
