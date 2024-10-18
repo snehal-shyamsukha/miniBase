@@ -26,6 +26,7 @@ contract MiniBase is ReentrancyGuard {
         address winner;
         uint256 totalPool;
         mapping(address => ParticipantData) participantData;
+        uint256 maxPlayer;
     }
 
     mapping(uint256 => Tournament) public tournaments;
@@ -44,6 +45,7 @@ contract MiniBase is ReentrancyGuard {
     error TransferFailed();
     error NoBetsOnWinner();
     error YouAreNotOwner(address owner, address caller);
+    error TournamentFull();
 
     constructor(address _usdcAddress) {
         usdcToken = IERC20(_usdcAddress);
@@ -52,7 +54,8 @@ contract MiniBase is ReentrancyGuard {
     function createTournament(
         string memory _name,
         uint256 _deadline,
-        uint256 tournamentId
+        uint256 tournamentId,
+        uint256 maxPlayer
     ) external {
         if (_deadline <= block.timestamp) {
             revert DeadlineInPast();
@@ -63,6 +66,7 @@ contract MiniBase is ReentrancyGuard {
         tournament.settled = false;
         tournament.totalPool = 0;
         tournament.tournamentOwner = msg.sender;
+        tournament.maxPlayer = maxPlayer;
 
         emit TournamentCreated(tournamentId, _name, _deadline);
     }
@@ -70,10 +74,9 @@ contract MiniBase is ReentrancyGuard {
     function addParticipant(uint256 _tournamentId, address _participant) external {
         Tournament storage tournament = tournaments[_tournamentId];
 
-        if (msg.sender != tournament.tournamentOwner) {
-            revert YouAreNotOwner(tournament.tournamentOwner, msg.sender);
+        if(tournament.maxPlayer==tournament.participants.length){
+            revert TournamentFull();
         }
-
         if (_participant == address(0)) {
             revert InvalidParticipant();
         }
