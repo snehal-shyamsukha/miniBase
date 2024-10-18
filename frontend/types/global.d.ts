@@ -20,4 +20,12 @@ interface Tournament {
   winner_wallet?: string;
   created_at?: string;
   updated_at?: string;
+  maxPlayer?: number;
+  reward: string;
+}
+
+interface Participant {
+  participant_id: number;
+  user_wallet: string;
+  total_bet_amount: number;
 }

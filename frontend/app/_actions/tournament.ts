@@ -46,7 +46,7 @@ export const createTournament = async (
 };
 
 
-export const getAllTournaments = async () => {
+export const getAllTournaments = async (): Promise<Tournament[]> => {
   const { data, error } = await supabaseClient.from("tournaments").select("*");
 
   if (error) {
@@ -54,5 +54,37 @@ export const getAllTournaments = async () => {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as Tournament[];
+};
+
+export const getTournamentOwner = async (tournamentId: number): Promise<string | null> => {
+  const { data, error } = await supabaseClient
+    .from("tournaments")
+    .select("owner_wallet")
+    .eq("tournament_id", tournamentId)
+    .single();
+    
+    console.log(data);
+
+  if (error) {
+    console.error("Error fetching tournament owner:", error.message);
+    return null;
+  }
+
+  return data?.owner_wallet || null;
+};
+
+export const settleTournament = async (tournamentId: number, winnerAddress: string) => {
+  console.log(winnerAddress);
+  const { error } = await supabaseClient
+    .from("tournaments")
+    .update({ settled: true, winner_wallet: winnerAddress })
+    .eq("tournament_id", tournamentId);
+
+  if (error) {
+    console.error("Error settling tournament:", error.message);
+    throw new Error(error.message);
+  }
+
+  console.log("Tournament settled successfully in database");
 };

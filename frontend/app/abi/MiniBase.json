@@ -1,5 +1,5 @@
 {
-    "address": "0x0c2C1f9CBf74f6D882F4e3E4cB71e8F5C9A8Ea22",
+    "address": "0xaC8184beB1c5B9ACeF6Fbd7d048eD0E0775fA277",
     "abi": [
         {
             "inputs": [
@@ -22,29 +22,6 @@
         {
             "inputs": [
                 {
-                    "internalType": "string",
-                    "name": "_name",
-                    "type": "string"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_deadline",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "tournamentId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "createTournament",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
                     "internalType": "address",
                     "name": "_usdcAddress",
                     "type": "address"
@@ -59,6 +36,34 @@
             "type": "error"
         },
         {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_name",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_deadline",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tournamentId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "maxPlayer",
+                    "type": "uint256"
+                }
+            ],
+            "name": "createTournament",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
             "inputs": [],
             "name": "DeadlineInPast",
             "type": "error"
@@ -71,6 +76,11 @@
         {
             "inputs": [],
             "name": "NoBetsOnWinner",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "OnlyOwnerCanCall",
             "type": "error"
         },
         {
@@ -122,6 +132,16 @@
         {
             "inputs": [],
             "name": "TournamentAlreadySettled",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "TournamentFull",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "TournamentInBettingPhase",
             "type": "error"
         },
         {
@@ -395,6 +415,11 @@
                 {
                     "internalType": "uint256",
                     "name": "totalPool",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "maxPlayer",
                     "type": "uint256"
                 }
             ],

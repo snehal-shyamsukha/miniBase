@@ -5,6 +5,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { generateTournamentId } from "@/utils/utils";
 import { ethers } from "ethers";
 import MiniBaseABIAndAddress from "@/app/abi/MiniBase.json";
+import toast from 'react-hot-toast';
 
 function getOrdinalSuffix(i: number): string {
   const j = i % 10,
@@ -20,8 +21,6 @@ function getOrdinalSuffix(i: number): string {
   }
   return "th";
 }
-
-const contractAddress = "";
 
 const convertToEpoch = (deadline: string): number => {
   return Math.floor(new Date(deadline).getTime() / 1000);
@@ -60,7 +59,6 @@ export default function NewTournament() {
     const ownerWallet = user?.farcaster?.ownerAddress || user?.wallet?.address;
     const tournamentId = generateTournamentId();
     const epochDeadline = convertToEpoch(formData.deadline);
-    console.log(epochDeadline);
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -96,28 +94,32 @@ export default function NewTournament() {
                   ],
                 });
                 console.log("Base Mainnet added and switched");
+                toast.success("Tournament Created!")
               } catch (addError) {
                 console.error("Failed to add Base Mainnet:", addError);
+                toast.error("Tournament Creation Failed!")
                 return;
               }
             } else {
               console.error("Failed to switch network:", switchError);
+              toast.error("Tournament Creation Failed!")
               return;
             }
           } else {
             console.error("Unknown error occurred:", switchError);
+            toast.error("Tournament Creation Failed!")
             return;
           }
         }
       }
 
       const contract = new ethers.Contract(MiniBaseABIAndAddress.address, MiniBaseABIAndAddress.abi, signer);
-      console.log(contract);
-
+      console.log(formData.maxPlayers, formData.tournamentName, epochDeadline, tournamentId);
       const tx = await contract.createTournament(
         formData.tournamentName,
         epochDeadline,
-        tournamentId
+        tournamentId,
+        formData.maxPlayers
       );
 
       await tx.wait();
@@ -140,6 +142,7 @@ export default function NewTournament() {
 
     } catch (error) {
       console.error("Error creating tournament:", error);
+      toast.error("Tournament Creation Failed!")
     }
   };
 
