@@ -8,7 +8,7 @@ export const placeBet = async (
   bet_amount: number
 ) => {
   const { data, error } = await supabaseClient
-    .from("Bettings")
+    .from("bettings")
     .insert([{ tournament_id, participant_id, bettor_user_id, bet_amount }]);
 
   if (error) {
@@ -21,7 +21,7 @@ export const placeBet = async (
 
 export const getBetsForTournament = async (tournament_id: number) => {
   const { data, error } = await supabaseClient
-    .from("Bettings")
+    .from("bettings")
     .select("*")
     .eq("tournament_id", tournament_id);
 

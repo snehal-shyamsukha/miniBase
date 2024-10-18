@@ -1,47 +1,6 @@
 {
-    "address": "0x0c2C1f9CBf74f6D882F4e3E4cB71e8F5C9A8Ea22",
+    "address": "0xdc089258F51CA1372F09A81a2D361B90aA3ba53a",
     "abi": [
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_tournamentId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_participant",
-                    "type": "address"
-                }
-            ],
-            "name": "addParticipant",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "_name",
-                    "type": "string"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_deadline",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "tournamentId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "createTournament",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
         {
             "inputs": [
                 {
@@ -79,49 +38,13 @@
             "type": "error"
         },
         {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_tournamentId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_participant",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_amount",
-                    "type": "uint256"
-                }
-            ],
-            "name": "placeBet",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_tournamentId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_winningParticipant",
-                    "type": "address"
-                }
-            ],
-            "name": "settleTournament",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
+            "inputs": [],
+            "name": "TournamentAlreadySettled",
+            "type": "error"
         },
         {
             "inputs": [],
-            "name": "TournamentAlreadySettled",
+            "name": "TournamentFull",
             "type": "error"
         },
         {
@@ -257,6 +180,52 @@
                     "type": "address"
                 }
             ],
+            "name": "addParticipant",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_name",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_deadline",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tournamentId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "maxPlayer",
+                    "type": "uint256"
+                }
+            ],
+            "name": "createTournament",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_tournamentId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_participant",
+                    "type": "address"
+                }
+            ],
             "name": "getParticipantBets",
             "outputs": [
                 {
@@ -366,6 +335,47 @@
             "inputs": [
                 {
                     "internalType": "uint256",
+                    "name": "_tournamentId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_participant",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "placeBet",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_tournamentId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_winningParticipant",
+                    "type": "address"
+                }
+            ],
+            "name": "settleTournament",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
                     "name": "",
                     "type": "uint256"
                 }
@@ -395,6 +405,11 @@
                 {
                     "internalType": "uint256",
                     "name": "totalPool",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "maxPlayer",
                     "type": "uint256"
                 }
             ],

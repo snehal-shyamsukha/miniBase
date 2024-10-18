@@ -46,7 +46,7 @@ export const createTournament = async (
 };
 
 
-export const getAllTournaments = async () => {
+export const getAllTournaments = async (): Promise<Tournament[]> => {
   const { data, error } = await supabaseClient.from("tournaments").select("*");
 
   if (error) {
@@ -54,5 +54,5 @@ export const getAllTournaments = async () => {
     throw new Error(error.message);
   }
 
-  return data;
+  return data as Tournament[];
 };
