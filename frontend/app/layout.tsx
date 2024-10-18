@@ -1,15 +1,12 @@
 "use client";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Inter } from 'next/font/google'
-import ClientLayout from "./components/ClientLayout";
+import { Inter } from 'next/font/google';
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
-import Image from "next/image";
 import PrivyProviders from "./PrivyProvider";
 import { SearchProvider } from "./contexts/SearchContext";
 import toast, { Toaster } from 'react-hot-toast';
-import { useState } from "react";
 import React from 'react';
 
 import "./globals.css";
@@ -36,25 +33,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-  };
   return (
     <html lang="en">
-      <PrivyProviders>
-        <SearchProvider>
-          <body
-            className={`${akira.variable} ${inter.variable} antialiased`}
-          >
+      <body
+        className={`${akira.variable} ${inter.variable} antialiased`}
+      >
+        <PrivyProviders>
+          <SearchProvider>
             <Navbar />
             <Toaster position="top-center" />
             {children}
             <Footer />
-          </body>
-        </SearchProvider>
-      </PrivyProviders>
+          </SearchProvider>
+        </PrivyProviders>
+      </body>
     </html>
   );
 }

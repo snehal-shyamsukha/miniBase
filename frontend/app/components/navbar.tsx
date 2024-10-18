@@ -14,9 +14,8 @@ const menuItems = [
 ];
 
 export default function Navbar() {
-  const { login, user, ready, authenticated } = usePrivy();
+  const { login, user, ready, authenticated, logout } = usePrivy();
   const { searchTerm, setSearchTerm } = useSearch();
-
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -25,9 +24,8 @@ export default function Navbar() {
     if (ready && authenticated && user?.wallet?.address) {
       const addUserToDb = async () => {
         try {
-            const userAddress = user?.wallet?.address || user.farcaster?.ownerAddress
+            const userAddress = user?.wallet?.address || user.farcaster?.ownerAddress;
             await createUser(userAddress ?? '');
-          console.log("User added to the database successfully.");
         } catch (error) {
           console.error("Error adding user to the database:", error);
         }
@@ -88,7 +86,7 @@ export default function Navbar() {
         <div className="flex flex-row items-center space-x-4 flex-1 justify-end">
           <Image src="/settings.png" alt="Logo" width={24} height={24} />
           {authenticated ? (
-            <div className="flex items-center justify-evenly rounded-[9999px] bg-[#AEFE03] text-black w-[189.78px] px-[24.108px] py-[11px] space-x-0.5">
+            <div className="flex items-center justify-evenly rounded-[9999px] bg-[#AEFE03] text-black w-[189.78px] px-[24.108px] py-[11px] space-x-0.5" onClick={logout}>
               <Image src="/wallet.png" alt="Wallet" width={24} height={24} />
               <span>{formatAddress(user?.wallet?.address ?? "")}</span>
             </div>

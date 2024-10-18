@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import { Interface } from "@ethersproject/abi";
@@ -15,6 +15,30 @@ interface TournamentCardProps {
   prizeAmount: string;
   timeline: string;
 }
+
+const formatTimeline = (epochTimestamp: number): string => {
+  const endDate = new Date(epochTimestamp * 1000);
+  const now = new Date();
+  const diffTime = endDate.getTime() - now.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+  const diffSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+
+  if (diffTime < 0) {
+    return "Ended";
+  } else if (diffDays > 1) {
+    return `${diffDays} days left`;
+  } else if (diffDays === 1) {
+    return "1 day left";
+  } else if (diffHours > 0) {
+    return `${diffHours}h ${diffMinutes}m left`;
+  } else if (diffMinutes > 0) {
+    return `${diffMinutes}m ${diffSeconds}s left`;
+  } else {
+    return `${diffSeconds}s left`;
+  }
+};
 
 const contractInterface = new Interface(MiniBaseABIAndAddress.abi);
 
@@ -54,6 +78,16 @@ export default function TournamentCard({
   const ownerWallet = user?.farcaster?.ownerAddress || user?.wallet?.address;
   const [isJoining, setIsJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [formattedTimeline, setFormattedTimeline] = useState(formatTimeline(parseInt(timeline)));
+
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFormattedTimeline(formatTimeline(parseInt(timeline)));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeline]);
 
   const handleAddParticipant = async () => {
     if (!ownerWallet) {
@@ -190,7 +224,7 @@ export default function TournamentCard({
             />
           </div>
           <div className="text-white font-sans text-[16.008px] font-bold">
-            {timeline}
+            {formattedTimeline}
           </div>
         </div>
         <button

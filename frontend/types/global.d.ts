@@ -23,3 +23,9 @@ interface Tournament {
   maxPlayer?: number;
   reward: string;
 }
+
+interface Participant {
+  participant_id: number;
+  user_wallet: string;
+  total_bet_amount: number;
+}

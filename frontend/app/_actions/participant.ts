@@ -6,7 +6,7 @@ export const checkParticipantExists = async (
   tournament_id: number,
   user_wallet: string
 ): Promise<boolean> => {
-  console.log(tournament_id, user_wallet)
+  console.log(tournament_id, user_wallet);
   const { data, error } = await supabaseClient
     .from("participants")
     .select("*")
@@ -14,8 +14,7 @@ export const checkParticipantExists = async (
     .eq("user_wallet", user_wallet)
     .single();
 
-
-      console.log(data);
+  console.log(data);
   if (error && error.code !== 'PGRST116') {
     console.error("Error checking participant:", error.message);
     throw new Error(error.message);
@@ -27,12 +26,11 @@ export const checkParticipantExists = async (
 export const addParticipantToTournament = async (
   tournament_id: number,
   participant: string
-) => {
+): Promise<{ success: boolean; message: string }> => {
   const participantExists = await checkParticipantExists(tournament_id, participant);
 
   if (participantExists) {
-    console.log("Participant already exists in the tournament");
-    return;
+    return { success: false, message: "Participant already exists in the tournament" };
   }
 
   const { data, error } = await supabaseClient
@@ -45,17 +43,20 @@ export const addParticipantToTournament = async (
 
   if (error) {
     console.error("Error adding participant:", error.message);
-    throw new Error(error.message);
+    return { success: false, message: error.message };
   }
 
   console.log("Participant added to tournament:", data);
+  return { success: true, message: "Participant added successfully" };
 };
 
 export const getAllParticipants = async (tournament_id: number) => {
+  console.log(tournament_id)
   const { data, error } = await supabaseClient
     .from("participants")
     .select("*")
     .eq("tournament_id", tournament_id);
+  console.log(data);
 
   if (error) {
     console.error("Error fetching participants:", error.message);
@@ -64,3 +65,5 @@ export const getAllParticipants = async (tournament_id: number) => {
 
   return data;
 };
+
+

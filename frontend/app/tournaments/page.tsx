@@ -58,29 +58,29 @@ export default function Tournaments() {
       </div>
       <div className="overflow-x-auto mt-20 pb-4 mb-4">
         <div className="flex space-x-6 px-6">
-          {[1, 2, 3, 4, 5].map((index) => (
+          {tournaments && tournaments.slice(0, 5).map((tournament) => (
             <div
-              key={index}
+              key={tournament.tournament_id}
               className="flex-shrink-0 w-[454.92px] h-[229.133px] rounded-[21.053px] border-[1.469px] border-[#8CFF05] relative overflow-hidden"
             >
               <Image
-                src="/t1.png"
-                alt={`Tournament ${index}`}
+                src={"/t1.png"}
+                alt={tournament.name}
                 layout="fill"
                 objectFit="cover"
               />
               <div className="absolute inset-0 p-4 flex flex-col justify-start w-2/3">
                 <h2 className="text-[#8CFF05] font-sans text-[24.322px] font-bold leading-normal">
-                  Based Games: The Great Realignment
+                  {tournament.name}
                 </h2>
                 <p className="text-white font-sans text-[6.901px] font-medium leading-normal mb-4">
-                  by fbi
+                  by FBI
                 </p>
                 <p className="w-[187.68px] h-[11.22px] flex-shrink-0 text-white font-sans text-[10.2px] font-medium leading-normal mb-2">
-                  Tournament Reward 🏆: 10,000 USDC
+                  Tournament Reward 🏆: {tournament.reward} USDC
                 </p>
                 <p className="w-[147.9px] h-[11.22px] flex-shrink-0 text-white font-sans text-[10.2px] font-medium leading-normal mb-2">
-                  Betting Pool 🎰 : $9,133 USDC
+                  Betting Pool 🎰 : {tournament.total_pool || "N/A"} USDC
                 </p>
                 <div className="flex flex-row space-x-2 mt-3">
                   <button className="w-[81.6px] h-[28.56px] flex-shrink-0 rounded-[23.626px] bg-[#0043F4] text-[#8CFF05] font-sans text-[15.3px] font-medium leading-normal hover:bg-[#003AD6] hover:text-[#7FE600] transition-colors duration-300">
@@ -125,7 +125,7 @@ export default function Tournaments() {
                   logoSrc="/staylogo.jpeg"
                   bgSrc="/stay.jpeg"
                   prizeAmount={tournament.reward}
-                  timeline={new Date(tournament.deadline).toLocaleDateString()}
+                  timeline={tournament.deadline}
                 />
               </div>
             </div>
