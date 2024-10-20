@@ -34,7 +34,7 @@ export default function Navbar() {
             const userAddress = user?.wallet?.address || user.farcaster?.ownerAddress;
             await createUser(userAddress ?? '');
             if (!toastShown.current) {
-            toast.success("Wallet connected!")
+            toast.success("Wallet connected! Make sure you're on BASE")
             toastShown.current = true;
             }
         } catch (error) {

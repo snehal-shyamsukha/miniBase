@@ -1,7 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 const socialItems = [
   { label: "twitter", img: "/x.png", link: "" },
   { label: "farcaster", img: "/farcaster.png", link: "" },
+  { label: "mail", img: "/mail.png", link: "mailto:minibaseofficial@gmail.com" },
 ]
 export default function Footer() {
   return (
@@ -26,6 +28,7 @@ export default function Footer() {
         <div className="flex flex-row items-center justify-center space-x-8 pb-4">
           {socialItems.map((item, index) => (
             <div key={index}>
+              <Link href={item.link}>
               <Image
                 src={item.img}
                 alt="Logo"
@@ -33,6 +36,7 @@ export default function Footer() {
                 height={43.131}
                 className="mt-2"
               />
+              </Link>
 
             </div>
           ))

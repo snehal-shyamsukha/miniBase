@@ -104,7 +104,7 @@ export default function Tournaments() {
         </div> */}
       {/* </div> */}
       <div className="p-6 mb-3">
-        <div className="flex flex-row space-x-6 mb-4 font-sans mt-10">
+        <div className="flex flex-row space-x-6 mb-4 font-sans mt-10 px-8 items-center justify-center">
           {menuItems.map((item, index) => (
             <button
               key={index}
@@ -131,7 +131,7 @@ export default function Tournaments() {
             {tournaments?.map((tournament: Tournament, index: number) => (
               <div
                 key={tournament.tournament_id}
-                className="w-full md:w-1/2 mb-6"
+                className="w-full md:w-1/2 mb-6 flex items-center justify-center"
               >
                 <div className="cursor-pointer transition-transform duration-300 hover:scale-105">
                   <TournamentCard
