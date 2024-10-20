@@ -11,7 +11,7 @@ interface TournamentCardProps {
   tournamentId: number;
   name: string;
   logoSrc: string;
-  bgSrc: string;
+  bgSrc?: string;
   prizeAmount: string;
   timeline: string;
 }
@@ -79,12 +79,31 @@ export default function TournamentCard({
   const [isJoining, setIsJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [formattedTimeline, setFormattedTimeline] = useState(formatTimeline(parseInt(timeline)));
+  const [isEnded, setIsEnded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setFormattedTimeline(formatTimeline(parseInt(timeline)));
+      const newFormattedTimeline = formatTimeline(parseInt(timeline));
+      setFormattedTimeline(newFormattedTimeline);
+      setIsEnded(newFormattedTimeline === "Ended");
     }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeline]);
+
+
+  useEffect(() => {
+    const checkTournamentStatus = () => {
+      const newFormattedTimeline = formatTimeline(parseInt(timeline));
+      setFormattedTimeline(newFormattedTimeline);
+      setIsEnded(newFormattedTimeline === "Ended");
+      setIsLoading(false);
+    };
+
+    checkTournamentStatus();
+    const timer = setInterval(checkTournamentStatus, 1000);
 
     return () => clearInterval(timer);
   }, [timeline]);
@@ -172,7 +191,7 @@ export default function TournamentCard({
     <div
       className="w-[664.866px] h-[313.223px] flex-shrink-0 rounded-[11.739px] relative bg-lightgray bg-cover bg-no-repeat bg-center"
       style={{
-        backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.40) 0%, rgba(0, 0, 0, 0.40) 100%), url('${bgSrc}')`,
+        backgroundImage: bgSrc ? `linear-gradient(0deg, rgba(0, 0, 0, 0.40) 0%, rgba(0, 0, 0, 0.40) 100%), url('${bgSrc}')` : 'linear-gradient(135deg, #001894 0%, #3965FF 100%)',
       }}
     >
       <Link href={`/tournaments/${tournamentId}`} passHref>
@@ -186,14 +205,14 @@ export default function TournamentCard({
               className="flex-shrink-0"
             />
           </div>
-          <div className="w-[492.513px] text-[#8CFF05] font-sans text-[26.68px] font-bold">
+          <div className="w-[492.513px] text-[#8CFF05] font-sans text-[26.68px] font-bold object-cover">
             {name}
           </div>
         </div>
 
-        {[1, 2, 3].map((index) => (
+        {['harris.base.eth', 'jesse.base.eth', 'brian.base.eth'].map((name,index) => (
           <div key={index} className="flex flex-row justify-between p-1 mb-1">
-            <p className="text-white font-sans text-[21.344px] font-bold">Team Alpha {index}</p>
+            <p className="text-white font-sans text-[21.344px] font-bold">{name}</p>
             <p className="text-white font-sans text-[21.344px] font-bold">30.94%</p>
           </div>
         ))}
@@ -227,15 +246,29 @@ export default function TournamentCard({
             {formattedTimeline}
           </div>
         </div>
-        <button
-          className="w-[94.86px] h-[28.56px] flex-shrink-0 rounded-[23.626px] bg-white hover:bg-[#F0F0F0] transition-colors duration-300"
-          onClick={handleAddParticipant}
-          disabled={isJoining}
-        >
-          <span className="w-[79.56px] h-[18.36px] flex-shrink-0 text-[#0043F4] font-sans text-[15.3px] font-medium leading-normal hover:text-[#003AD6] hover:cursor-pointer">
-            {isJoining ? "Joining..." : "Participate"}
-          </span>
-        </button>
+        {!isLoading && !isEnded && (
+          <>
+            <button
+              className="w-[94.86px] h-[28.56px] flex-shrink-0 rounded-[23.626px] bg-white hover:bg-[#F0F0F0] transition-colors duration-300"
+              onClick={handleAddParticipant}
+              disabled={isJoining}
+            >
+              <span className="w-[79.56px] h-[18.36px] flex-shrink-0 text-[#0043F4] font-sans text-[15.3px] font-medium leading-normal hover:text-[#003AD6] hover:cursor-pointer">
+                {isJoining ? "Joining..." : "Participate"}
+              </span>
+            </button>
+            <Link href={`/tournaments/${tournamentId}`} passHref>
+              <button
+                className="w-[94.86px] h-[28.56px] flex-shrink-0 rounded-[23.626px] bg-[#8CFF05] hover:bg-[#7AE004] transition-colors duration-300 ml-2"
+              >
+                <span className="w-[79.56px] h-[18.36px] flex-shrink-0 text-black font-sans text-[15.3px] font-medium leading-normal hover:cursor-pointer">
+                  Bet Now
+                </span>
+              </button>
+            </Link>
+          </>
+          )}
+
         <Image
           src="/star.svg"
           alt="Star icon"
@@ -246,7 +279,7 @@ export default function TournamentCard({
       </div>
       {
         joinError && (
-          <div className="absolute bottom-20 left-0 w-full bg-red-500 text-white p-2 text-center">
+          <div className="absolute bottom-20 left-0 w-full bg-red-500 text-white p-2 text-center font-sans">
             {joinError}
           </div>
         )

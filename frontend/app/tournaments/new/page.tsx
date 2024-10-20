@@ -5,7 +5,8 @@ import { usePrivy } from "@privy-io/react-auth";
 import { generateTournamentId } from "@/utils/utils";
 import { ethers } from "ethers";
 import MiniBaseABIAndAddress from "@/app/abi/MiniBase.json";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 function getOrdinalSuffix(i: number): string {
   const j = i % 10,
@@ -27,6 +28,8 @@ const convertToEpoch = (deadline: string): number => {
 };
 
 export default function NewTournament() {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     gameDescription: "",
     tournamentName: "",
@@ -35,12 +38,22 @@ export default function NewTournament() {
     maxPlayers: 0,
     reward: "",
     prizeDistribution: ["", "", ""],
-    streaming_link: ""
+    streaming_link: "",
   });
 
+  const [errors, setErrors] = useState({
+    gameDescription: "",
+    tournamentName: "",
+    tournamentDescription: "",
+    deadline: "",
+    maxPlayers: "",
+    reward: "",
+    prizeDistribution: ["", "", ""],
+    streaming_link: "",
+  });
   const { user } = usePrivy();
 
-  const handleInputChange = (e: { target: { id: any; value: any; }; }) => {
+  const handleInputChange = (e: { target: { id: any; value: any } }) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
@@ -53,9 +66,13 @@ export default function NewTournament() {
     });
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
+    if (!validateForm()) {
+      toast.error("Please fill out all required fields.");
+      return;
+    }
+    setIsLoading(true);
     const ownerWallet = user?.farcaster?.ownerAddress || user?.wallet?.address;
     const tournamentId = generateTournamentId();
     const epochDeadline = convertToEpoch(formData.deadline);
@@ -68,9 +85,13 @@ export default function NewTournament() {
 
       if (chainId !== 8453) {
         try {
+          if (typeof window.ethereum === 'undefined') {
+            toast.error("wallet disconnected!")
+            throw new Error("No Ethereum wallet detected. Please install MetaMask or another Web3 wallet.");
+          }      
           await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x2105' }],
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x2105" }],
           });
           console.log("Switched to Base Mainnet");
         } catch (switchError) {
@@ -78,43 +99,51 @@ export default function NewTournament() {
             if ((switchError as any).code === 4902) {
               try {
                 await window.ethereum.request({
-                  method: 'wallet_addEthereumChain',
+                  method: "wallet_addEthereumChain",
                   params: [
                     {
-                      chainId: '0x2105',
-                      chainName: 'Base Mainnet',
+                      chainId: "0x2105",
+                      chainName: "Base Mainnet",
                       nativeCurrency: {
-                        name: 'Base',
-                        symbol: 'ETH',
+                        name: "Base",
+                        symbol: "ETH",
                         decimals: 18,
                       },
-                      rpcUrls: ['https://mainnet.base.org'],
-                      blockExplorerUrls: ['https://basescan.org/'],
+                      rpcUrls: ["https://mainnet.base.org"],
+                      blockExplorerUrls: ["https://basescan.org/"],
                     },
                   ],
                 });
                 console.log("Base Mainnet added and switched");
-                toast.success("Tournament Created!")
               } catch (addError) {
                 console.error("Failed to add Base Mainnet:", addError);
-                toast.error("Tournament Creation Failed!")
+                toast.error("Tournament Creation Failed!");
                 return;
               }
             } else {
               console.error("Failed to switch network:", switchError);
-              toast.error("Tournament Creation Failed!")
+              toast.error("Tournament Creation Failed!");
               return;
             }
           } else {
             console.error("Unknown error occurred:", switchError);
-            toast.error("Tournament Creation Failed!")
+            toast.error("Tournament Creation Failed!");
             return;
           }
         }
       }
 
-      const contract = new ethers.Contract(MiniBaseABIAndAddress.address, MiniBaseABIAndAddress.abi, signer);
-      console.log(formData.maxPlayers, formData.tournamentName, epochDeadline, tournamentId);
+      const contract = new ethers.Contract(
+        MiniBaseABIAndAddress.address,
+        MiniBaseABIAndAddress.abi,
+        signer
+      );
+      console.log(
+        formData.maxPlayers,
+        formData.tournamentName,
+        epochDeadline,
+        tournamentId
+      );
       const tx = await contract.createTournament(
         formData.tournamentName,
         epochDeadline,
@@ -139,19 +168,105 @@ export default function NewTournament() {
       );
 
       console.log("Tournament data saved in the database");
-
+      toast.success("Tournament Created!");
+      router.push(`/tournaments/${tournamentId}`);
     } catch (error) {
       console.error("Error creating tournament:", error);
-      toast.error("Tournament Creation Failed!")
+      toast.error("Tournament Creation Failed!");
+    } finally {
+      setIsLoading(false);
     }
   };
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
 
+    if (!formData.gameDescription.trim()) {
+      newErrors.gameDescription = "Game description is required";
+      isValid = false;
+    } else {
+      newErrors.gameDescription = "";
+    }
+
+    if (!formData.tournamentName.trim()) {
+      newErrors.tournamentName = "Tournament name is required";
+      isValid = false;
+    } else {
+      newErrors.tournamentName = "";
+    }
+
+    if (!formData.tournamentDescription.trim()) {
+      newErrors.tournamentDescription = "Tournament description is required";
+      isValid = false;
+    } else {
+      newErrors.tournamentDescription = "";
+    }
+
+    if (!formData.deadline) {
+      newErrors.deadline = "Tournament date/time is required";
+      isValid = false;
+    } else {
+      const selectedDate = new Date(formData.deadline);
+      const currentDate = new Date();
+      if (selectedDate <= currentDate) {
+        newErrors.deadline = "Tournament date/time must be in the future";
+        isValid = false;
+      } else {
+        newErrors.deadline = "";
+      }
+    }
+
+    if (!formData.maxPlayers || formData.maxPlayers <= 0) {
+      newErrors.maxPlayers = "Maximum number of players must be greater than 0";
+      isValid = false;
+    } else {
+      newErrors.maxPlayers = "";
+    }
+
+    if (!formData.reward.trim()) {
+      newErrors.reward = "Tournament reward is required";
+      isValid = false;
+    } else {
+      newErrors.reward = "";
+    }
+
+    const newPrizeErrors = formData.prizeDistribution.map((prize, index) => {
+      if (!prize.trim() && index === 0) {
+        isValid = false;
+        return "1st prize is required";
+      }
+      return "";
+    });
+    newErrors.prizeDistribution = newPrizeErrors;
+
+    if (formData.streaming_link && !isValidUrl(formData.streaming_link)) {
+      newErrors.streaming_link = "Invalid URL format";
+      isValid = false;
+    } else {
+      newErrors.streaming_link = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
   return (
     <div className="mb-10">
       <div className="flex flex-col justify-center items-center mt-10">
-        <div className="w-full max-w-[1268px] h-[78px] flex-shrink-0 text-white text-center font-akira text-4xl sm:text-5xl md:text-6xl lg:text-[80.87px] font-extrabold leading-none"
-          style={{ textShadow: "-3px 0px 0 #FFB9CA, 1px 0px 0 #FFB9CA, -1px 0px 0 #FFB9CA, 1px 0px 0 #FFB9CA" }}
+        <div
+          className="w-full max-w-[1268px] h-[78px] flex-shrink-0 text-white text-center font-akira text-4xl sm:text-5xl md:text-6xl lg:text-[80.87px] font-extrabold leading-none"
+          style={{
+            textShadow:
+              "-3px 0px 0 #FFB9CA, 1px 0px 0 #FFB9CA, -1px 0px 0 #FFB9CA, 1px 0px 0 #FFB9CA",
+          }}
         >
           HOST A TOURNAMENT
         </div>
@@ -160,7 +275,10 @@ export default function NewTournament() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-[1320px] space-y-6 ml-10 mt-10">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-[1320px] space-y-6 ml-10 mt-10"
+      >
         {/* <div>
           <label className="block text-[#8CFF05] font-akira text-xl mb-2">Cover Image</label>
           <div className="flex items-center justify-center w-full h-[300px] bg-[#1E52F8] border border-[#FFF9F9] rounded-[19.326px]">
@@ -169,7 +287,12 @@ export default function NewTournament() {
         </div> */}
 
         <div>
-          <label htmlFor="gameDescription" className="block text-[#8CFF05] font-akira text-xl mb-2">Game Description</label>
+          <label
+            htmlFor="gameDescription"
+            className="block text-[#8CFF05] font-akira text-xl mb-2"
+          >
+            Game Description
+          </label>
           <textarea
             id="gameDescription"
             value={formData.gameDescription}
@@ -180,7 +303,12 @@ export default function NewTournament() {
         </div>
 
         <div>
-          <label htmlFor="tournamentName" className="block text-[#8CFF05] font-akira text-xl mb-2">Name of Tournament</label>
+          <label
+            htmlFor="tournamentName"
+            className="block text-[#8CFF05] font-akira text-xl mb-2"
+          >
+            Name of Tournament
+          </label>
           <input
             type="text"
             value={formData.tournamentName}
@@ -191,7 +319,12 @@ export default function NewTournament() {
         </div>
 
         <div>
-          <label htmlFor="tournamentDescription" className="block text-[#8CFF05] font-akira text-xl mb-2">Tournament Description</label>
+          <label
+            htmlFor="tournamentDescription"
+            className="block text-[#8CFF05] font-akira text-xl mb-2"
+          >
+            Tournament Description
+          </label>
           <textarea
             id="tournamentDescription"
             value={formData.tournamentDescription}
@@ -202,7 +335,12 @@ export default function NewTournament() {
         </div>
 
         <div>
-          <label htmlFor="deadline" className="block text-[#8CFF05] font-akira text-xl mb-2">Tournament Date/Time</label>
+          <label
+            htmlFor="deadline"
+            className="block text-[#8CFF05] font-akira text-xl mb-2"
+          >
+            Tournament Date/Time
+          </label>
           <input
             type="datetime-local"
             id="deadline"
@@ -213,7 +351,12 @@ export default function NewTournament() {
         </div>
 
         <div>
-          <label htmlFor="maxPlayers" className="block text-[#8CFF05] font-akira text-xl mb-2">Maximum Number of Players</label>
+          <label
+            htmlFor="maxPlayers"
+            className="block text-[#8CFF05] font-akira text-xl mb-2"
+          >
+            Maximum Number of Players
+          </label>
           <input
             type="number"
             id="maxPlayers"
@@ -225,7 +368,12 @@ export default function NewTournament() {
 
         <div className="flex flex-row justify-between">
           <div>
-            <label htmlFor="reward" className="block text-[#8CFF05] font-akira text-xl mb-2">Tournament Reward</label>
+            <label
+              htmlFor="reward"
+              className="block text-[#8CFF05] font-akira text-xl mb-2"
+            >
+              Tournament Reward
+            </label>
             <input
               type="text"
               id="reward"
@@ -235,7 +383,12 @@ export default function NewTournament() {
             />
           </div>
           <div className="flex flex-col">
-            <label htmlFor="prizeDistribution" className="block text-[#8CFF05] font-akira text-xl mb-2">Prize Distribution</label>
+            <label
+              htmlFor="prizeDistribution"
+              className="block text-[#8CFF05] font-akira text-xl mb-2"
+            >
+              Prize Distribution
+            </label>
             {[1, 2, 3].map((place, index) => (
               <input
                 key={place}
@@ -251,7 +404,12 @@ export default function NewTournament() {
 
         {/* Streaming Link */}
         <div>
-          <label htmlFor="streaming_link" className="block text-[#8CFF05] font-akira text-xl mb-2">Streaming Link (optional)</label>
+          <label
+            htmlFor="streaming_link"
+            className="block text-[#8CFF05] font-akira text-xl mb-2"
+          >
+            Streaming Link (optional)
+          </label>
           <input
             type="url"
             id="streaming_link"
@@ -263,10 +421,40 @@ export default function NewTournament() {
 
         {/* Submit Button */}
         <div className="flex justify-center space-x-4 mt-8">
-          <button type="submit" className="w-[200px] h-[60px] rounded-[22px] bg-[#8CFF05] hover:bg-[#7FE600] transition-colors duration-300 font-akira text-[#0029FF] hover:text-[#003AD6] text-center text-xl font-bold">
-            LFG 🔥
+          <button
+            type="submit"
+            className="w-[200px] h-[60px] rounded-[22px] bg-[#8CFF05] hover:bg-[#7FE600] transition-colors duration-300 font-akira text-[#0029FF] hover:text-[#003AD6] text-center text-xl font-bold"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Creating...
+              </span>
+            ) : (
+              "LFG 🔥"
+            )}
           </button>
-          <button className="w-[200px] h-[60px] rounded-[22px] bg-white hover:bg-[#F0F0F0] transition-colors duration-300 font-akira text-[#0029FF] text-center text-xl font-bold">
+          <button 
+            type="button" 
+            className="w-[200px] h-[60px] rounded-[22px] bg-white hover:bg-[#F0F0F0] transition-colors duration-300 font-akira text-[#0029FF] text-center text-xl font-bold"
+            onClick={() => router.back()}
+            disabled={isLoading}
+          >
             Cancel
           </button>
         </div>

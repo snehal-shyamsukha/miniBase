@@ -29,17 +29,30 @@ export default function Gamecard({
   discord,
   twitter,
   cta,
-  ctaLink
+  ctaLink,
 }: GameProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [isMobile, setIsMobile] = useState(false);
   const socialLinks = [
-    { src: "/web.png", link: website , alt: "Website" },
-    { src: "/dis.png", link: discord , alt: "Discord" },
-    { src: "/x.png", link: twitter , alt: "Twitter" },
+    { src: "/web.png", link: website, alt: "Website" },
+    { src: "/dis.png", link: discord, alt: "Discord" },
+    { src: "/x.png", link: twitter, alt: "Twitter" },
   ];
-  const SocialLink = ({ src, link, alt }: { src: string; link: string; alt: string }) => (
-    <a href={link} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+  const SocialLink = ({
+    src,
+    link,
+    alt,
+  }: {
+    src: string;
+    link: string;
+    alt: string;
+  }) => (
+    <a
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="cursor-pointer"
+    >
       <Image
         src={src}
         alt={alt}
@@ -55,8 +68,8 @@ export default function Gamecard({
       setIsMobile(window.innerWidth < 768);
     };
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
@@ -66,14 +79,14 @@ export default function Gamecard({
           <Image src={cover} alt="Game Cover" layout="fill" objectFit="cover" />
         </div>
         <div className="absolute top-full left-0 w-full px-4 md:px-10 z-10">
-        <div className="flex justify-end w-full mt-2 md:mt-4">
-  <div className="flex space-x-4">
-    {socialLinks.map((link, index) => (
-      <SocialLink key={index} {...link} />
-    ))}
-  </div>
-</div>
+          <div className="flex justify-end w-full mt-2 md:mt-4">
+            <div className="flex space-x-4">
+              {socialLinks.map((link, index) => (
+                <SocialLink key={index} {...link} />
+              ))}
+            </div>
           </div>
+        </div>
         <div className="absolute bottom-0 left-0 w-full transform translate-y-1/2 md:translate-y-2/3 flex items-end px-4 md:px-10">
           <div className="p-2 md:p-6 flex flex-col md:flex-row items-center md:items-end justify-between w-full">
             <div className="flex flex-col md:flex-row items-center md:space-x-8">
@@ -160,7 +173,10 @@ export default function Gamecard({
             )}
           </div>
           <div className="flex justify-center mt-10">
-            <a href={ctaLink} className="bg-[#8CFF05] text-black font-semibold rounded-full hover:bg-[#7AE004] text-sm md:text-[20px] transition-colors font-sans px-4 md:px-6 py-2 md:py-3">
+            <a
+              href={ctaLink}
+              className="bg-[#8CFF05] text-black font-semibold rounded-full hover:bg-[#7AE004] text-sm md:text-[20px] transition-colors font-sans px-4 md:px-6 py-2 md:py-3"
+            >
               {cta}
             </a>
           </div>

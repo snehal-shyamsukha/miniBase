@@ -8,7 +8,9 @@ import { ethers } from "ethers";
 import MiniBaseABIAndAddress from "@/app/abi/MiniBase.json";
 import { useParams } from "next/navigation";
 import { placeBet } from "@/app/_actions/betting";
-import { getTournamentOwner, settleTournament } from "@/app/_actions/tournament";
+import { getTournamentOwner, settleTournament, getAllTournaments } from "@/app/_actions/tournament";
+import { formatTimeLeft } from "@/utils/timeUtils";
+
 
 const USDC_ABI = [
   "function approve(address spender, uint256 amount) public returns (bool)",
@@ -27,6 +29,9 @@ export default function TournamentBetting() {
   const [isSettling, setIsSettling] = useState(false);
   const [tournamentOwner, setTournamentOwner] = useState<string | null>(null);
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
+  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [tournamentIndex, setTournamentIndex] = useState<number | null>(null);
+  const [bettingParticipant, setBettingParticipant] = useState<string | null>(null);
   const { user } = usePrivy();
   const ownerWallet = user?.farcaster?.ownerAddress || user?.wallet?.address;
 
@@ -40,6 +45,12 @@ export default function TournamentBetting() {
         const owner = await getTournamentOwner(tournamentId);
         console.log(owner);
         setTournamentOwner(owner);
+        const tournaments = await getAllTournaments();
+        const currentTournament = tournaments.find(t => t.tournament_id === tournamentId);
+        setTournament(currentTournament || null);
+        if (currentTournament) {
+          setTournamentIndex(tournaments.findIndex(t => t.tournament_id === tournamentId));
+        }
       }
       setIsLoading(false);
     };
@@ -54,6 +65,7 @@ export default function TournamentBetting() {
     }
 
     setIsPlacingBet(true);
+    setBettingParticipant(participantWallet);
 
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -99,6 +111,7 @@ export default function TournamentBetting() {
       console.error("Error placing bet:", error);
     } finally {
       setIsPlacingBet(false);
+      setBettingParticipant(null);
     }
   };
 
@@ -137,24 +150,33 @@ export default function TournamentBetting() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen bg-[#0043F4]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#8CFF05] mb-4"></div>
+          <p className="text-[#8CFF05] font-bold text-xl font-sans">Loading Tournament...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div>
+    {tournament && tournamentIndex !== null && (
       <MainCard
-        title="BASED GAMES: THE GREAT REALIGN"
-        subtitle="Hosted by FBI"
-        imageUrl="/knight.png"
-        prizeAmount="10000"
-        timeLeft="2 Days"
-        description="The Based gods have spoken: 8 clans become 4 as alliances form anew. Unite with your newfound allies to solve the puzzle and earn immunity for your merged clan. The remaining clans face the vote, where fate is decided by whispers and strategies. Forge bonds and secure your future!"
-        buttonText="Join Now"
+        title={tournament.name}
+        subtitle={`Hosted by ${tournament.owner_wallet.slice(0, 6)}...${tournament.owner_wallet.slice(-4)}`}
+        imageUrl={tournamentIndex === 0 ? "/fc.png" : tournamentIndex === 1 ? "/dawnlogo.png"  : tournamentIndex === 2 ? "/cat.jpeg"  : tournamentIndex === 3 ? "/fc.png": "/based.png"}
+        prizeAmount={tournament.reward}
+        timeLeft={formatTimeLeft(parseInt(tournament.deadline, 10))}
+        description={tournament.description}
+        buttonText="Watch Stream"
         onButtonClick={() => console.log('Button clicked')}
       />
+    )}
 
       {ownerWallet === tournamentOwner && (
-        <div className="text-center my-4">
+        <div className="text-center my-4 font-sans">
           <select 
             className="bg-[#0043F4] text-white font-bold py-2 px-4 rounded-full mr-4"
             value={selectedWinner || ''}
@@ -168,7 +190,7 @@ export default function TournamentBetting() {
             ))}
           </select>
           <button 
-            className="bg-[#FF4136] text-white font-bold py-2 px-4 rounded-full hover:bg-[#FF7A6F] transition-colors duration-300"
+            className="bg-[#0043F4] text-[#8CFF05] font-bold py-2 px-4 rounded-full hover:bg-[#003AD6] transition-colors duration-300 border border-[#8CFF05] font-sans"
             onClick={handleSettleTournament}
             disabled={isSettling || !selectedWinner}
           >
@@ -191,23 +213,27 @@ export default function TournamentBetting() {
             <div className="w-1/3 text-white font-bold">{participant.user_wallet.slice(0, 6)}...{participant.user_wallet.slice(-4)}</div>
             <div className="w-1/3 text-center text-white font-bold">{participant.total_bet_amount} USDC</div>
             <div className="w-1/3 text-right">
-              {!isParticipant && (
-                <button 
-                  className="bg-[#8CFF05] text-[#0043F4] font-bold py-2 px-4 rounded-full hover:bg-[#7AE005] transition-colors duration-300"
-                  onClick={() => handleBet(participant.user_wallet, "0.5")}
-                  disabled={isPlacingBet}
-                >
-                  {isPlacingBet ? "Placing Bet..." : "Bet 0.5 USDC"}
-                </button>
-              )}
+            {!isParticipant && tournament && typeof tournament.deadline === 'number' && tournament.deadline * 1000 > Date.now() && (
+        <button 
+          className="bg-[#8CFF05] text-[#0043F4] font-bold py-2 px-4 rounded-full hover:bg-[#7AE005] transition-colors duration-300"
+          onClick={() => handleBet(participant.user_wallet, "0.5")}
+          disabled={isPlacingBet}
+        >
+          {isPlacingBet && bettingParticipant === participant.user_wallet 
+            ? "Placing Bet..." 
+            : "Bet 0.5 USDC"}
+        </button>
+      )}
             </div>
           </div>
         ))}
       </div>
 
       {isParticipant && (
-        <div className="text-center text-white mt-4">
-          You are a participant in this tournament and cannot place bets.
+        <div className="text-center text-white mt-4 mb-8 font-sans max-w-md mx-auto">
+          <p className="border-2 border-[#8CFF05] rounded-lg p-4 bg-[#0043F4] shadow-lg">
+            <span className="font-bold text-[#8CFF05]">Note:</span> You are a participant in this tournament and cannot place bets.
+          </p>
         </div>
       )}
     </div>

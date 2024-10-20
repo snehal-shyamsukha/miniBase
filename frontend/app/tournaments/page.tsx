@@ -5,6 +5,7 @@ import Link from "next/link";
 import TournamentCard from '@/app/components/tournamentCard';
 import { getAllTournaments } from "../_actions/tournament";
 
+
 const menuItems = [
   { label: "All" },
   { label: "RPG" },
@@ -16,15 +17,20 @@ const menuItems = [
 export default function Tournaments() {
   const [selectedMenuItem, setSelectedMenuItem] = useState("All");
   const [tournaments, setTournaments] = useState<Tournament[]>();
+  const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchTournaments = async () => {
+      setIsLoading(true);
       try {
         const data = await getAllTournaments();
         console.log(data)
         setTournaments(data);
       } catch (error) {
         console.error("Error fetching tournaments:", error);
+      }finally {
+        setIsLoading(false);
       }
     };
     fetchTournaments();
@@ -56,8 +62,8 @@ export default function Tournaments() {
           </button>
         </div>
       </div>
-      <div className="overflow-x-auto mt-20 pb-4 mb-4">
-        <div className="flex space-x-6 px-6">
+      {/* <div className="overflow-x-auto mt-20 pb-4 mb-4"> */}
+      {/* <div className="flex space-x-6 px-6">
           {tournaments && tournaments.slice(0, 5).map((tournament) => (
             <div
               key={tournament.tournament_id}
@@ -95,8 +101,8 @@ export default function Tournaments() {
               </div>
             </div>
           ))}
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
       <div className="p-6 mb-3">
         <div className="flex flex-row space-x-6 mb-4 font-sans mt-10">
           {menuItems.map((item, index) => (
@@ -105,32 +111,62 @@ export default function Tournaments() {
               className={`text-[22.115px] font-bold
           px-[6.706px] py-[2.579px] rounded-[10.317px]
           border transition-all duration-200 ease-in-out
-          ${selectedMenuItem === item.label
-                  ? "border-[#0043F4] bg-[#AEFE03] text-[#0043F4]"
-                  : "border-transparent text-white border-white hover:border-[#0043F4] hover:bg-[#AEFE03] hover:text-[#0043F4]"
-                }`}
+          ${
+            selectedMenuItem === item.label
+              ? "border-[#0043F4] bg-[#AEFE03] text-[#0043F4]"
+              : "border-transparent text-white border-white hover:border-[#0043F4] hover:bg-[#AEFE03] hover:text-[#0043F4]"
+          }`}
               onClick={() => setSelectedMenuItem(item.label)}
             >
               {item.label}
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap p-2">
-          {tournaments?.map((tournament: Tournament) => (
-            <div key={tournament.tournament_id} className="w-full md:w-1/2 mb-6">
-              <div className="cursor-pointer transition-transform duration-300 hover:scale-105">
-                <TournamentCard
-                  name={tournament.name}
-                  tournamentId={tournament.tournament_id}
-                  logoSrc="/staylogo.jpeg"
-                  bgSrc="/stay.jpeg"
-                  prizeAmount={tournament.reward}
-                  timeline={tournament.deadline}
-                />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#8CFF05]"></div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap p-2">
+            {tournaments?.map((tournament: Tournament, index: number) => (
+              <div
+                key={tournament.tournament_id}
+                className="w-full md:w-1/2 mb-6"
+              >
+                <div className="cursor-pointer transition-transform duration-300 hover:scale-105">
+                  <TournamentCard
+                    name={tournament.name}
+                    tournamentId={tournament.tournament_id}
+                    logoSrc={
+                      index === 0
+                        ? "/knight.png"
+                        : index === 1
+                        ? "/dawnlogo.png"
+                        : index === 2
+                        ? "/cat.jpeg"
+                        : index === 3
+                        ? "/fc.png"
+                        : "/based.png"
+                    }
+                    bgSrc={
+                      index === 0
+                        ? "/knight.png"
+                        : index === 1
+                        ? "/Minibase Photos/Dawnshard/Frame.png"
+                        : index === 2
+                        ? "/Minibase Photos/Cat Town/Screenshot 2024-10-18 at 12.37.25 AM.png"
+                        :index === 3
+                        ? "/Minibase Photos/Fit Club/Cover.jpeg"
+                        : undefined
+                    }
+                    prizeAmount={tournament.reward}
+                    timeline={tournament.deadline}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
