@@ -6,6 +6,7 @@ import { Interface } from "@ethersproject/abi";
 import MiniBaseABIAndAddress from "@/app/abi/MiniBase.json";
 import { addParticipantToTournament, checkParticipantExists } from "../_actions/participant";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 interface TournamentCardProps {
   tournamentId: number;
@@ -129,6 +130,13 @@ export default function TournamentCard({
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
 
+      const balance = await provider.getBalance(ownerWallet);
+      if (balance.isZero()) {
+        setJoinError("Insufficient ETH balance. Please add some ETH to your wallet to cover gas fees.");
+        setIsJoining(false);
+        return;
+      }
+
       const { chainId } = await provider.getNetwork();
       if (chainId !== 8453) {
         try {
@@ -177,6 +185,7 @@ export default function TournamentCard({
       console.log("Adding participant to database");
       await addParticipantToTournament(tournamentId, ownerWallet);
       console.log("Participant added to database");
+      toast.success("You have joined the tournament!")
 
     } catch (error) {
       console.error("Error adding participant:", error);
@@ -196,13 +205,13 @@ export default function TournamentCard({
     >
       <Link href={`/tournaments/${tournamentId}`} passHref>
         <div className="flex flex-row p-4 space-x-4 items-center">
-          <div>
+          <div className="w-[90px] h-[90px] flex-shrink-0 overflow-hidden">
             <Image
               src={logoSrc}
               alt="Tournament logo"
               width={90}
               height={90}
-              className="flex-shrink-0"
+              className="h-full w-auto min-w-full object-cover"
             />
           </div>
           <div className="w-[492.513px] text-[#8CFF05] font-sans text-[26.68px] font-bold object-cover">

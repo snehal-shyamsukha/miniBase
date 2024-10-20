@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import { placeBet } from "@/app/_actions/betting";
 import { getTournamentOwner, settleTournament, getAllTournaments } from "@/app/_actions/tournament";
 import { formatTimeLeft } from "@/utils/timeUtils";
-
+import { toast } from 'react-hot-toast';
 
 const USDC_ABI = [
   "function approve(address spender, uint256 amount) public returns (bool)",
@@ -60,6 +60,7 @@ export default function TournamentBetting() {
 
   const handleBet = async (participantWallet: string, amount: string) => {
     if (!ownerWallet) {
+      toast.error("No wallet connected");
       console.error("No wallet connected");
       return;
     }
@@ -104,6 +105,7 @@ export default function TournamentBetting() {
         parseFloat(amount)
       );
       console.log("Bet saved to database");
+      toast.success("Bet placed successfully!");
 
       const updatedParticipants = await getAllParticipants(tournamentId);
       setParticipants(updatedParticipants);
@@ -166,7 +168,7 @@ export default function TournamentBetting() {
       <MainCard
         title={tournament.name}
         subtitle={`Hosted by ${tournament.owner_wallet.slice(0, 6)}...${tournament.owner_wallet.slice(-4)}`}
-        imageUrl={tournamentIndex === 0 ? "/fc.png" : tournamentIndex === 1 ? "/dawnlogo.png"  : tournamentIndex === 2 ? "/cat.jpeg"  : tournamentIndex === 3 ? "/fc.png": "/based.png"}
+        imageUrl={tournamentIndex === 0 ? "/knight.png" : tournamentIndex === 1 ? "/dawnlogo.png"  : tournamentIndex === 2 ? "/cat.jpeg"  : tournamentIndex === 3 ? "/fc.png": "/based.png"}
         prizeAmount={tournament.reward}
         timeLeft={formatTimeLeft(parseInt(tournament.deadline, 10))}
         description={tournament.description}
