@@ -15,6 +15,7 @@ interface TournamentCardProps {
   bgSrc?: string;
   prizeAmount: string;
   timeline: string;
+  image?: string;
 }
 
 const formatTimeline = (epochTimestamp: number): string => {
@@ -74,6 +75,7 @@ export default function TournamentCard({
   bgSrc,
   prizeAmount,
   timeline,
+  image,
 }: TournamentCardProps) {
   const { user } = usePrivy();
   const ownerWallet = user?.farcaster?.ownerAddress || user?.wallet?.address;
@@ -196,22 +198,25 @@ export default function TournamentCard({
     }
   };
 
+  console.log(logoSrc);
+
   return (
     <div
       className="w-[664.866px] h-[313.223px] flex-shrink-0 rounded-[11.739px] relative bg-lightgray bg-cover bg-no-repeat bg-center"
       style={{
-        backgroundImage: bgSrc ? `linear-gradient(0deg, rgba(0, 0, 0, 0.40) 0%, rgba(0, 0, 0, 0.40) 100%), url('${bgSrc}')` : 'linear-gradient(135deg, #001894 0%, #3965FF 100%)',
+        backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.40) 0%, rgba(0, 0, 0, 0.40) 100%), url('${image || bgSrc || 'linear-gradient(135deg, #001894 0%, #3965FF 100%)'}')`
       }}
     >
       <Link href={`/tournaments/${tournamentId}`} passHref>
         <div className="flex flex-row p-4 space-x-4 items-center">
           <div className="w-[90px] h-[90px] flex-shrink-0 overflow-hidden">
             <Image
-              src={logoSrc}
+              src={logoSrc ? new URL(logoSrc).toString() : '/fallback-image.png'}
               alt="Tournament logo"
               width={90}
               height={90}
               className="h-full w-auto min-w-full object-cover"
+              unoptimized
             />
           </div>
           <div className="w-[492.513px] text-[#8CFF05] font-sans text-[26.68px] font-bold object-cover">

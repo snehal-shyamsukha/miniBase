@@ -1,6 +1,32 @@
 "use server";
 import { supabaseClient } from "@/utils/supabase/client";
 
+export const uploadTournamentImage = async (fileData: string, fileName: string) => {
+  const timestamp = Date.now();
+  const storageFileName = `tournament-images/${timestamp}-${fileName}`;
+
+  // Convert base64 to buffer
+  const base64Data = fileData.split(',')[1];
+  const buffer = Buffer.from(base64Data, 'base64');
+
+  const { data, error } = await supabaseClient.storage
+    .from('tournaments')
+    .upload(storageFileName, buffer, {
+      contentType: 'image/png'
+    });
+
+  if (error) {
+    console.error("Error uploading image:", error.message);
+    throw new Error(error.message);
+  }
+
+  const { data: { publicUrl } } = supabaseClient.storage
+    .from('tournaments')
+    .getPublicUrl(storageFileName);
+
+  return publicUrl;
+};
+
 export const createTournament = async (
   tournamentId: number,
   owner_wallet: string,
@@ -11,7 +37,8 @@ export const createTournament = async (
   maxPlayers: number,
   reward: string,
   prizeDistribution: string[],
-  streaming_link: string
+  streaming_link: string,
+  image: string
 ): Promise<number> => {
 
   console.log(deadline);
@@ -32,7 +59,8 @@ export const createTournament = async (
       prize_distribution: formattedPrizeDistribution,
       total_pool: 0,
       settled: false,
-      streaming_link
+      streaming_link,
+      image
     })
     .select('tournament_id');
 

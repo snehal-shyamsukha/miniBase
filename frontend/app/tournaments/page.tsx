@@ -137,28 +137,8 @@ export default function Tournaments() {
                   <TournamentCard
                     name={tournament.name}
                     tournamentId={tournament.tournament_id}
-                    logoSrc={
-                      index === 0
-                        ? "/knight.png"
-                        : index === 1
-                        ? "/dawnlogo.png"
-                        : index === 2
-                        ? "/cat.jpeg"
-                        : index === 3
-                        ? "/fc.png"
-                        : "/based.png"
-                    }
-                    bgSrc={
-                      index === 0
-                        ? "/knight.png"
-                        : index === 1
-                        ? "/Minibase Photos/Dawnshard/Frame.png"
-                        : index === 2
-                        ? "/Minibase Photos/Cat Town/Screenshot 2024-10-18 at 12.37.25 AM.png"
-                        :index === 3
-                        ? "/Minibase Photos/Fit Club/Cover.jpeg"
-                        : undefined
-                    }
+                    logoSrc={tournament.image || ''}
+                    bgSrc={tournament.image || ''}
                     prizeAmount={tournament.reward}
                     timeline={tournament.deadline}
                   />

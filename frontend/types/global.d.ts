@@ -22,6 +22,7 @@ interface Tournament {
   updated_at?: string;
   maxPlayer?: number;
   reward: string;
+  image?: string;
 }
 
 interface Participant {

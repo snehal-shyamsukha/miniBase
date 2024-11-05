@@ -1,12 +1,14 @@
 "use client";
 import { use, useState } from "react";
-import { createTournament } from "@/app/_actions/tournament";
+import { createTournament, uploadTournamentImage } from "@/app/_actions/tournament";
 import { usePrivy } from "@privy-io/react-auth";
 import { generateTournamentId } from "@/utils/utils";
 import { ethers } from "ethers";
 import MiniBaseABIAndAddress from "@/app/abi/MiniBase.json";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import imageCompression from 'browser-image-compression';
 
 function getOrdinalSuffix(i: number): string {
   const j = i % 10,
@@ -39,6 +41,8 @@ export default function NewTournament() {
     reward: "",
     prizeDistribution: ["", "", ""],
     streaming_link: "",
+    imageFile: null as File | null,
+    imagePreview: '',
   });
 
   const [errors, setErrors] = useState({
@@ -78,6 +82,14 @@ export default function NewTournament() {
     const epochDeadline = convertToEpoch(formData.deadline);
 
     try {
+      let imageUrl = "";
+      if (formData.imageFile) {
+        imageUrl = await uploadTournamentImage(
+          formData.imagePreview,
+          formData.imageFile.name
+        );
+      }
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
 
@@ -164,7 +176,8 @@ export default function NewTournament() {
         formData.maxPlayers,
         formData.reward,
         formData.prizeDistribution,
-        formData.streaming_link
+        formData.streaming_link,
+        imageUrl
       );
 
       console.log("Tournament data saved in the database");
@@ -258,6 +271,35 @@ export default function NewTournament() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const options = {
+          maxSizeMB: 2,         
+          maxWidthOrHeight: 800,  
+          useWebWorker: true,
+          initialQuality: 0.6   
+        };
+
+        const compressedFile = await imageCompression(file, options);
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          setFormData(prev => ({
+            ...prev,
+            imageFile: compressedFile,
+            imagePreview: reader.result as string
+          }));
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        toast.error('Error processing image. Please try a different image.');
+      }
+    }
+  };
+
   return (
     <div className="mb-10">
       <div className="flex flex-col justify-center items-center mt-10">
@@ -279,12 +321,31 @@ export default function NewTournament() {
         onSubmit={handleSubmit}
         className="w-full max-w-[1320px] space-y-6 ml-10 mt-10"
       >
-        {/* <div>
+        <div>
           <label className="block text-[#8CFF05] font-akira text-xl mb-2">Cover Image</label>
-          <div className="flex items-center justify-center w-full h-[300px] bg-[#1E52F8] border border-[#FFF9F9] rounded-[19.326px]">
-            <span className="text-[#678BFF] font-sans text-xl">+ Add Cover Image</span>
+          <div 
+            className="flex items-center justify-center w-full h-[300px] bg-[#1E52F8] border border-[#FFF9F9] rounded-[19.326px] relative overflow-hidden cursor-pointer"
+            onClick={() => document.getElementById('imageUpload')?.click()}
+          >
+            {formData.imagePreview ? (
+              <Image
+                src={formData.imagePreview}
+                alt="Tournament cover"
+                fill
+                style={{ objectFit: 'cover' }}
+              />
+            ) : (
+              <span className="text-[#678BFF] font-sans text-xl">+ Add Cover Image</span>
+            )}
+            <input
+              type="file"
+              id="imageUpload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
           </div>
-        </div> */}
+        </div>
 
         <div>
           <label
