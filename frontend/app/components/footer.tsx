@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 const socialItems = [
-  { label: "twitter", img: "/x.png", link: "" },
-  { label: "farcaster", img: "/farcaster.png", link: "" },
+  { label: "twitter", img: "/x.png", link: "https://x.com/theminibaseHQ" },
+  { label: "farcaster", img: "/farcaster.png", link: "https://x.com/theminibaseHQ" },
   { label: "mail", img: "/mail.png", link: "mailto:minibaseofficial@gmail.com" },
 ]
 export default function Footer() {
